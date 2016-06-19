@@ -1,0 +1,53 @@
+﻿<Window x:Class="WpfApplication1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApplication1"
+        mc:Ignorable="d"
+        Title="Download &amp; Convert" Height="177.667" ResizeMode="NoResize" Background="#FF303030" Foreground="#FFE0E0E0" Margin="0" HorizontalAlignment="Left" Width="271">
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo />
+    </Window.TaskbarItemInfo>
+    <Window.Resources>
+        <Style x:Key="standardButton" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="#FF404040"/>
+            <Setter Property="Foreground" Value="#FFE0E0E0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="Gray" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF505050"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="Gray"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid HorizontalAlignment="Left" Width="261">
+        <TextBox x:Name="urlBox" HorizontalAlignment="Left" Height="19" Margin="10,10,0,0" VerticalAlignment="Top" Width="207" Background="#FF404040" BorderThickness="1" Foreground="#FFE0E0E0" BorderBrush="Gray" FontSize="10.667" ToolTip="Your URL here" TextChanged="urlBox_TextChanged"/>
+
+        <Button x:Name="startButton" Content="Start" HorizontalAlignment="Left" Margin="10,38,0,0" VerticalAlignment="Top" Width="75" Style="{StaticResource standardButton}" Click="startButton_Click"/>
+        <Button x:Name="optionsButton" Content="Options" HorizontalAlignment="Left" Margin="90,38,0,0" VerticalAlignment="Top" Width="75" Style="{StaticResource standardButton}" Click="optionsButton_Click"/>
+        <Button x:Name="openButton" Content="Open folder" HorizontalAlignment="Left" Margin="170,38,0,0" VerticalAlignment="Top" Width="75" Style="{StaticResource standardButton}" Click="openButton_Click"/>
+        <Separator HorizontalAlignment="Left" Height="1" Margin="10,65,0,0" VerticalAlignment="Top" Width="235" Background="#FF404040"/>
+        <Label x:Name="taskText" Content="Ready" HorizontalAlignment="Left" Margin="10,71,0,0" VerticalAlignment="Top" Foreground="#FFE0E0E0" Height="15" BorderThickness="0" Padding="0" FontSize="10.667"/>
+        <ProgressBar x:Name="taskProgress" HorizontalAlignment="Left" Height="6" Margin="10,91,0,0" VerticalAlignment="Top" Width="235" Foreground="Silver" Background="#FF404040" BorderBrush="#FF404040" BorderThickness="0" ValueChanged="taskProgress_ValueChanged"/>
+        <Label x:Name="overallText" Content="Overall progress" HorizontalAlignment="Left" Margin="10,102,0,0" VerticalAlignment="Top" Foreground="#FFE0E0E0" Height="15" BorderThickness="0" Padding="0" FontSize="10.667"/>
+        <ProgressBar x:Name="overallProgress" HorizontalAlignment="Left" Height="6" Margin="10,122,0,0" VerticalAlignment="Top" Width="235" Foreground="Silver" Background="#FF404040" BorderBrush="#FF404040" BorderThickness="0"/>
+        <Label x:Name="taskDetail" Content="" HorizontalAlignment="Right" Margin="0,71,20,0" VerticalAlignment="Top" Foreground="#FFE0E0E0" Height="15" BorderThickness="0" Padding="0" FontSize="10.667"/>
+        <Label x:Name="overallDetail" Content="" HorizontalAlignment="Right" Margin="0,102,20,0" VerticalAlignment="Top" Foreground="#FFE0E0E0" Height="15" BorderThickness="0" Padding="0" FontSize="10.667"/>
+        <Label x:Name="urlHint" IsHitTestVisible="False" Content="Enter the URL here" HorizontalAlignment="Left" Margin="10,10,0,80" Foreground="#FF606060" Height="19" BorderThickness="0" Padding="5,0,0,0" FontSize="10.667" Panel.ZIndex="1" VerticalAlignment="Top" VerticalContentAlignment="Center" Background="#00000000"/>
+        <Button x:Name="moreButton" Content="..." HorizontalAlignment="Left" Margin="226,10,0,0" VerticalAlignment="Top" Width="19" Style="{StaticResource standardButton}" Height="19"/>
+
+    </Grid>
+</Window>
