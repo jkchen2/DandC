@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Windows.Shell;
 using System.IO;
+using DandC;
 
 namespace WpfApplication1
 {
@@ -27,10 +28,8 @@ namespace WpfApplication1
 
     protected bool isRunning = false;
     protected string directory = Environment.CurrentDirectory;
-    //protected string directory = "C:\\voa_test";
-    //protected string link = "https://youtu.be/1Wytn-_MSBo";
     protected int currentStage = 0;
-    protected bool processingStage = false;
+    protected bool audioDownloadStage = false;
 
     protected Process currentTask = null;
     protected bool currentTaskRunning = false;
@@ -100,7 +99,7 @@ namespace WpfApplication1
       currentTask.StartInfo.CreateNoWindow = true;
       currentTask.EnableRaisingEvents = true;
       currentTask.Exited += new EventHandler(taskFinishedHandler);
-      processingStage = false;
+      audioDownloadStage = false;
       string fileLocation = directory + "\\youtube-dl.exe";
       string outputDirectory = directory + "\\processing";
       string arguments = "--no-check-certificate --newline --write-info-json -k --output \"" + outputDirectory + "\\original.mp4\" " + link;
@@ -138,16 +137,16 @@ namespace WpfApplication1
                 }
                 string rate = splitData[5];
                 Dispatcher.Invoke(() => taskDetail.Content = String.Format("{0} ({1})", splitData[5], splitData[3]), DispatcherPriority.Normal);
-                if (processingStage)
+                if (audioDownloadStage)
                 {
-                  Dispatcher.Invoke(() => taskText.Content = "Processing...", DispatcherPriority.Normal);
+                  Dispatcher.Invoke(() => taskText.Content = "Downloading audio...", DispatcherPriority.Normal);
                 }
                 Dispatcher.Invoke(() => taskProgress.Value = percentage, DispatcherPriority.Normal);
               }
 
               else if (text.StartsWith("[download] 1")) // Download done
               {
-                processingStage = true;
+                audioDownloadStage = true;
                 Dispatcher.Invoke(() => taskDetail.Content = "(" + splitData[3] + ")", DispatcherPriority.Normal);
                 Dispatcher.Invoke(() => taskProgress.Value = 100.0, DispatcherPriority.Normal);
               }
@@ -155,7 +154,7 @@ namespace WpfApplication1
               else if (text.StartsWith("[download] Destination: "))
               {
                 Console.WriteLine("Here is the current line: " + text);
-                downloadFile = text.Substring(24);
+                downloadFile = "\"" + text.Substring(24) + "\"";
                 Console.WriteLine("*** Destination file: " + downloadFile);
               }
 
@@ -214,7 +213,7 @@ namespace WpfApplication1
       currentTask.Exited += new EventHandler(taskFinishedHandler);
       string fileLocation = directory + "\\ffmpeg.exe";
       string outputDirectory = directory + "\\processing";
-      string arguments = "-y -i \"" + downloadFile + "\" -ac 1 -qscale:a 8 \"" + outputDirectory + "\\converted.mp3\" ";
+      string arguments = "-y -i " + downloadFile + " -ac 1 -qscale:a 8 \"" + outputDirectory + "\\converted.mp3\" ";
       Console.WriteLine("File location: " + fileLocation);
       Console.WriteLine("Arguments: " + arguments);
       currentTask.StartInfo.FileName = fileLocation;
@@ -309,18 +308,26 @@ namespace WpfApplication1
           durationTask.StartInfo.UseShellExecute = false;
           durationTask.StartInfo.CreateNoWindow = true;
           string fileLocation = directory + "\\ffprobe.exe";
-          string arguments = "-v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"" + downloadFile + "\"";
+          string arguments = "-v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 " + downloadFile;
           Console.WriteLine("File location: " + fileLocation);
           Console.WriteLine("Arguments: " + arguments);
           durationTask.StartInfo.FileName = fileLocation;
           durationTask.StartInfo.Arguments = arguments;
-
-          durationTask.Start();
+          string output = "0";
+          try
+          {
+            durationTask.Start();
+            output = durationTask.StandardOutput.ReadToEnd().Trim();
+            durationTask.WaitForExit();
+          }
+          catch (Exception e)
+          {
+          Console.WriteLine("{0}\nException caught.", e);
+          Console.WriteLine("Warning: ffprobe not found.");
+          }
 
           double duration = 0;
-          string output = durationTask.StandardOutput.ReadToEnd().Trim();
           double.TryParse(output, out duration);
-          durationTask.WaitForExit();
           startConvertTask((int)duration);
           break;
 
@@ -341,7 +348,10 @@ namespace WpfApplication1
 
     private void optionsButton_Click(object sender, RoutedEventArgs e)
     {
-      MessageBox.Show("This feature is not implemented yet. Sorry.", "Darn");
+      OptionsWindow options = new OptionsWindow();
+      options.ShowDialog();
+      //this.IsEnabled = false;
+      //MessageBox.Show("This feature is not implemented yet. Sorry.", "Darn");
     }
 
     private void openButton_Click(object sender, RoutedEventArgs e)
@@ -355,7 +365,7 @@ namespace WpfApplication1
       switch (currentStage)
       {
         case 0:
-          if (!processingStage) {
+          if (!audioDownloadStage) {
             overallProgress.Value = taskProgress.Value * 0.85;
           }
           break;
